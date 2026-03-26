@@ -64,7 +64,7 @@ Available commands:
         current_time = time.strftime("%H:%M:%S")
         return jsonify({
             "text": f"🕒 Current time: {current_time}"
-        }),
+        }),200
 
     # ✅ WEATHER
     elif command == "/weather":
@@ -95,28 +95,37 @@ Available commands:
 
     # ✅ REMINDER ⭐
     elif command == "/reminder":
-        if not text:
-            return jsonify({"text": "Usage: /reminder <seconds> <message>"})
+    if not text:
+        return jsonify({
+            "text": "Usage: /reminder <seconds> <message>"
+        }), 200
 
-        try:
-            parts = text.split(" ", 1)
-            seconds = int(parts[0])
-            message = parts[1]
+    try:
+        parts = text.split(" ", 1)
 
-            def reminder_task():
-                time.sleep(seconds)
-                print(f"⏰ Reminder for {user}: {message}")
-
-            threading.Thread(target=reminder_task).start()
-
-            return jsonify({
-                "text": f"⏰ Reminder set for {seconds} seconds!"
-            }),200
-
-        except:
+        if len(parts) < 2:
             return jsonify({
                 "text": "Usage: /reminder <seconds> <message>"
-            }),200
+            }), 200
+
+        seconds = int(parts[0])
+        message = parts[1]
+
+        def reminder_task():
+            time.sleep(seconds)
+            print(f"⏰ Reminder for {user}: {message}")
+
+        threading.Thread(target=reminder_task).start()
+
+        return jsonify({
+            "text": f"⏰ Reminder set for {seconds} seconds!"
+        }), 200
+
+    except Exception as e:
+        print("Reminder error:", e)
+        return jsonify({
+            "text": "Error setting reminder 😢"
+        }), 200
 
     # ❌ INVALID
     return jsonify({"text": "Invalid command ❌"}),200
